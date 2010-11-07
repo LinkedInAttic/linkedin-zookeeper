@@ -4,6 +4,7 @@
    =========================================================================
 
 This product uses the libraries
+  commons-cli
   maven
   log4j
   zookeeper
