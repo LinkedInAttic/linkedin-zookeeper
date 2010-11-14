@@ -39,6 +39,8 @@ to set them over and over!). You can see a good example of how to use this class
 - StandaloneZooKeeperServer: a simple class to start a standalone ZooKeeper server (simple to use
 in testing)
 
+Javadoc: http://www.kiwidoc.com/java/l/p/org.linkedin/org.linkedin.zookeeper-impl
+
 * org.linkedin.zookeeper-cli
 A command line (similar to the one bundled with ZooKeeper) with the idea of having a syntax very close
 to a 'regular' shell:
