@@ -15,5 +15,6 @@
  */
 
 include ':org.linkedin.zookeeper-impl',
+        ':org.linkedin.zookeeper-cli-impl',
         ':org.linkedin.zookeeper-cli',
         ':org.linkedin.zookeeper-server'

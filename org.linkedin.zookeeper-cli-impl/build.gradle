@@ -14,9 +14,18 @@
  * the License.
  */
 
-apply plugin: 'org.linkedin.cmdline'
-apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'org.linkedin.release'
 
 dependencies {
-  runtime project(':org.linkedin.zookeeper-cli-impl')
+  compile project(':org.linkedin.zookeeper-impl')
+  compile spec.external.linkedinUtilsCore
+  compile spec.external.slf4j
+  compile spec.external.zookeeper
+
+  groovy spec.external.groovy
+
+  runtime spec.external.commonsCli
+  runtime spec.external.slf4jLog4j
+  runtime spec.external.log4j
 }
