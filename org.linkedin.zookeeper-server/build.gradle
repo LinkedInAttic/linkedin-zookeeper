@@ -13,17 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-apply plugin: 'java'
 
-isCommandLine = true
+apply plugin: 'java'
+apply plugin: 'org.linkedin.cmdline'
+apply plugin: 'org.linkedin.release'
 
 dependencies {
-  compile external.zookeeper
+  compile spec.external.zookeeper
 }
 
-afterEvaluate { p ->
-  // customizing package-create task to add data folder
-  p.'package-create' << {
-    mkdir new File(packageDir, 'data')
-  }  
+cmdline {
+  folders << 'data'
 }
