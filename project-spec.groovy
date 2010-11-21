@@ -21,7 +21,7 @@ spec = [
 
     versions: [
       groovy: '1.7.5',
-      linkedinUtils: '1.1.0-SNAPSHOT',
+      linkedinUtils: '1.0.0',
       slf4j: '1.5.8' // to be compatible with grails 1.3.5
     ],
 
