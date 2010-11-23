@@ -41,7 +41,7 @@ in testing)
 
 Javadoc: http://www.kiwidoc.com/java/l/p/org.linkedin/org.linkedin.zookeeper-impl
 
-* org.linkedin.zookeeper-cli
+* org.linkedin.zookeeper-cli-impl
 A command line (similar to the one bundled with ZooKeeper) with the idea of having a syntax very close
 to a 'regular' shell:
 zk.sh ls /a/b/c
@@ -49,6 +49,9 @@ zk.sh du /a/b/d
 zk.sh put localFile.txt /a/b/c
 zk.sh cat /a/b/c
 etc...
+
+* org.linkedin.zookeeper-cli
+Create the packaged version of the cli.
 
 * org.linkedin.zookeeper-server
 Simply create a packaged server which is easy to install and start. Useful in dev.
