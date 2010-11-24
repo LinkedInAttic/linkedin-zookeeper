@@ -17,11 +17,11 @@
 spec = [
     name: 'linkedin-zookeeper',
     group: 'org.linkedin',
-    version: '1.1.0',
+    version: '1.2.0',
 
     versions: [
       groovy: '1.7.5',
-      linkedinUtils: '1.0.0',
+      linkedinUtils: '1.2.0',
       slf4j: '1.5.8' // to be compatible with grails 1.3.5
     ],
 
