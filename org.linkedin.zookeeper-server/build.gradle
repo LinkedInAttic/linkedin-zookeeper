@@ -14,11 +14,11 @@
  * the License.
  */
 
-apply plugin: 'java'
 apply plugin: 'org.linkedin.cmdline'
+apply plugin: 'org.linkedin.release'
 
 dependencies {
-  compile spec.external.zookeeper
+  lib spec.external.zookeeper
 }
 
 cmdline {

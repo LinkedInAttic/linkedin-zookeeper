@@ -15,8 +15,8 @@
  */
 
 apply plugin: 'org.linkedin.cmdline'
-apply plugin: 'java'
+apply plugin: 'org.linkedin.release'
 
 dependencies {
-  runtime project(':org.linkedin.zookeeper-cli-impl')
+  lib project(':org.linkedin.zookeeper-cli-impl')
 }
