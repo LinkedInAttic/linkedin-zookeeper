@@ -2,6 +2,24 @@ Introduction
 ============
 The project represents a set of utility classes and wrappers around [ZooKeeper](http://hadoop.apache.org/zookeeper).
 
+Download
+========
+You can download pre-built binaries directly from the [github downloads page](https://github.com/linkedin/linkedin-zookeeper/downloads)
+
+* `org.linkedin.zookeeper-server-<version>.tgz`:
+  A simple to use prepackaged zookeeper distribution:
+
+        ./bin/zkServer.sh start
+
+* `org.linkedin.zookeeper-cli-<version>.tgz`:
+  A command line (similar to the one bundled with ZooKeeper) with the idea of having a syntax very close to a 'regular' shell:
+
+          zk.sh ls /a/b/c
+          zk.sh du /a/b/d
+          zk.sh put localFile.txt /a/b/c
+          zk.sh cat /a/b/c
+          etc...
+
 Compilation
 ===========
 In order to compile the code you need

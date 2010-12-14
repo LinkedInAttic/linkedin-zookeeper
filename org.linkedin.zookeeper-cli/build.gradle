@@ -20,3 +20,7 @@ apply plugin: 'org.linkedin.release'
 dependencies {
   lib project(':org.linkedin.zookeeper-cli-impl')
 }
+
+cmdline {
+  resources << fileTree(dir: rootDir, includes: ['*.txt', '*.md'])
+}

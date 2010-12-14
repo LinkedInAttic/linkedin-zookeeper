@@ -23,4 +23,5 @@ dependencies {
 
 cmdline {
   folders << 'data'
+  resources << fileTree(dir: rootDir, includes: ['*.txt', '*.md'])
 }
