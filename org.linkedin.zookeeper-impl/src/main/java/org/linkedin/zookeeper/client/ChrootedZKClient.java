@@ -16,8 +16,6 @@
 
 package org.linkedin.zookeeper.client;
 
-import org.apache.zookeeper.KeeperException;
-
 /**
  * @author ypujante@linkedin.com
  */

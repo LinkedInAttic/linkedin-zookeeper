@@ -78,7 +78,7 @@ public class ZooKeeperURLHandler extends URLStreamHandler
 
   private final IZKClient _defaultClient;
 
-  ZooKeeperURLHandler(IZKClient defaultClient)
+  public ZooKeeperURLHandler(IZKClient defaultClient)
   {
     _defaultClient = defaultClient;
   }
