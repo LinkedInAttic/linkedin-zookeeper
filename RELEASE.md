@@ -1,3 +1,8 @@
+1.3.0 (2011/04/30)
+------------------
+* use of [linkedin-utils 1.4.0](https://github.com/linkedin/linkedin-utils/tree/v1.4.0)
+* use of latest version of ZooKeeper (3.3.3)
+
 1.2.2 (2011/01/26)
 ------------------
 * made constructor public
