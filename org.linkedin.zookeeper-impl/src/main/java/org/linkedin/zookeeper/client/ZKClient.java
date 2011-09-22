@@ -553,4 +553,13 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
       return _zk;
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getConnectString() {
+      return _factory.getConnectString();
+  }
+
 }

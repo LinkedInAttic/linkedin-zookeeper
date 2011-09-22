@@ -25,5 +25,9 @@ import org.apache.zookeeper.Watcher;
  */
 public interface IZooKeeperFactory
 {
+  /**
+   * @return the connect string that the factory uses.
+   */
+  String getConnectString();
   IZooKeeper createZooKeeper(Watcher watcher);
 }

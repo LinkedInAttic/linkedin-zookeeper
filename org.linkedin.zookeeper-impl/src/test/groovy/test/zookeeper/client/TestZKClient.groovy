@@ -91,6 +91,8 @@ class TestZKClient extends GroovyTestCase
       client.start()
       client.waitForStart(Timespan.parse('10s'))
 
+      assertEquals('localhost:2121', client.getConnectString())
+
       // registers url factory
       def factory = new SingletonURLStreamHandlerFactory()
       factory.registerHandler('zookeeper') {

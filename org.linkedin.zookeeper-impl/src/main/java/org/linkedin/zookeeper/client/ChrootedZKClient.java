@@ -74,4 +74,12 @@ public class ChrootedZKClient extends AbstractZKClient implements IZKClient
   {
     _zkClient.removeListener(listener);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getConnectString() {
+      return _zkClient.getConnectString();
+  }
 }
