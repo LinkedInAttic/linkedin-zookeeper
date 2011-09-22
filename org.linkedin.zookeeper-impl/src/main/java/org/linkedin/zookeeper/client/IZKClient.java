@@ -142,4 +142,10 @@ public interface IZKClient extends IZooKeeper
    * delete all the children if they exist
    */
   void deleteWithChildren(String path) throws InterruptedException, KeeperException;
+
+  /**
+   * @return the connect string that this client used.
+   */
+  String getConnectString();
+
 }
