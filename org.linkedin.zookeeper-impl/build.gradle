@@ -19,12 +19,12 @@ apply plugin: 'org.linkedin.release'
 
 dependencies {
   compile spec.external.linkedinUtilsCore
-  compile spec.external.linkedinUtilsGroovy
   compile spec.external.slf4j
   compile spec.external.zookeeper
 
   groovy spec.external.groovy
   
+  testCompile spec.external.linkedinUtilsGroovy
   testCompile spec.external.junit
   testRuntime spec.external.slf4jLog4j
 }
