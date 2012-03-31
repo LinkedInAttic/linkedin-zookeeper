@@ -1,3 +1,7 @@
+1.4.1 (2012/03/31)
+------------------
+* use of [linkedin-utils 1.8.0](https://github.com/linkedin/linkedin-utils/tree/v1.8.0)
+
 1.4.0 (2011/09/23)
 ------------------
 * use of [linkedin-utils 1.7.1](https://github.com/linkedin/linkedin-utils/tree/v1.7.1)
