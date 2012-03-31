@@ -23,10 +23,10 @@ dependencies {
   compile spec.external.linkedinUtilsGroovy
   compile spec.external.slf4j
   compile spec.external.zookeeper
+  compile  spec.external.slf4jLog4j
 
   groovy spec.external.groovy
 
   runtime spec.external.commonsCli
-  runtime spec.external.slf4jLog4j
   runtime spec.external.log4j
 }
