@@ -17,7 +17,7 @@
 spec = [
     name: 'linkedin-zookeeper',
     group: 'org.linkedin',
-    version: '1.5.0',
+    version: '1.4.1',
 
     versions: [
       groovy: '1.7.5',
