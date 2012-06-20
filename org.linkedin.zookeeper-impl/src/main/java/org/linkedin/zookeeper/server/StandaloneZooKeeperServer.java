@@ -19,6 +19,7 @@ package org.linkedin.zookeeper.server;
 
 import org.slf4j.Logger;
 import org.apache.zookeeper.server.NIOServerCnxn;
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
@@ -32,6 +33,7 @@ import org.linkedin.util.concurrent.ConcurrentUtils;
 import org.linkedin.util.exceptions.InternalException;
 import org.linkedin.util.lifecycle.Shutdownable;
 import org.linkedin.util.lifecycle.Startable;
+import java.net.InetSocketAddress;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +61,7 @@ public class StandaloneZooKeeperServer implements Startable, Shutdownable
   private Thread _mainThread;
   
   private volatile boolean _shutdown = false;
-  private NIOServerCnxn.Factory _cnxnFactory;
+  private NIOServerCnxnFactory _cnxnFactory;
   private ZooKeeperServer _zkServer;
 
   public StandaloneZooKeeperServer(String tickTime, String dataDir, int clientPort)
@@ -165,8 +167,9 @@ public class StandaloneZooKeeperServer implements Startable, Shutdownable
       _zkServer.setTickTime(config.getTickTime());
       _zkServer.setMinSessionTimeout(config.getMinSessionTimeout());
       _zkServer.setMaxSessionTimeout(config.getMaxSessionTimeout());
-      _cnxnFactory = new NIOServerCnxn.Factory(config.getClientPortAddress(),
-                                               config.getMaxClientCnxns());
+      _cnxnFactory = new NIOServerCnxnFactory();
+      _cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns());
+                                              
       _cnxnFactory.startup(_zkServer);
     }
     catch(InterruptedException e)
