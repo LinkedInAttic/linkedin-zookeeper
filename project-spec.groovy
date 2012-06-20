@@ -52,5 +52,5 @@ spec.external = [
   slf4j: "org.slf4j:slf4j-api:${spec.versions.slf4j}",
   slf4jLog4j: "org.slf4j:slf4j-log4j12:${spec.versions.slf4j}",
   slf4jJul: "org.slf4j:jul-to-slf4j:${spec.versions.slf4j}",
-  zookeeper: 'org.apache.zookeeper:zookeeper:3.3.3'
+  zookeeper: 'org.apache.zookeeper:zookeeper:3.4.3'
 ]
