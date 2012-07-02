@@ -1,3 +1,8 @@
+1.4.2 (2012/06/26)
+------------------
+* use of [linkedin-utils 1.8.1](https://github.com/linkedin/linkedin-utils/tree/v1.8.1)
+* upgraded to org.apache.zookeeper 3.3.4
+
 1.4.1 (2012/03/31)
 ------------------
 * use of [linkedin-utils 1.8.0](https://github.com/linkedin/linkedin-utils/tree/v1.8.0)
