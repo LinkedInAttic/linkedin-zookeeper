@@ -17,11 +17,11 @@
 spec = [
     name: 'linkedin-zookeeper',
     group: 'org.linkedin',
-    version: '1.4.1',
+    version: '1.4.2',
 
     versions: [
       groovy: '1.7.5',
-      linkedinUtils: '1.8.0',
+      linkedinUtils: '1.8.1',
       slf4j: '1.5.8' // to be compatible with grails 1.3.5
     ],
 
@@ -52,5 +52,5 @@ spec.external = [
   slf4j: "org.slf4j:slf4j-api:${spec.versions.slf4j}",
   slf4jLog4j: "org.slf4j:slf4j-log4j12:${spec.versions.slf4j}",
   slf4jJul: "org.slf4j:jul-to-slf4j:${spec.versions.slf4j}",
-  zookeeper: 'org.apache.zookeeper:zookeeper:3.3.3'
+  zookeeper: 'org.apache.zookeeper:zookeeper:3.3.4'
 ]
