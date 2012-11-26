@@ -62,7 +62,7 @@ public class ClientMain
   {
     def connectString = config.zkConnectionString ?: "127.0.0.1:2181"
 
-    client = new ZKClient(connectString, Timespan.parse('100'), null)
+    client = new ZKClient(connectString, Timespan.parse('10s'), null)
 
     client.start()
     log.debug "Talking to zookeeper on ${connectString}"
