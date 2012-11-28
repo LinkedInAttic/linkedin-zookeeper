@@ -61,8 +61,9 @@ public class ClientMain
   def start()
   {
     def connectString = config.zkConnectionString ?: "127.0.0.1:2181"
+    def connectTimeout = config.zkConnectionTimeout ?: "100"
 
-    client = new ZKClient(connectString, Timespan.parse('10s'), null)
+    client = new ZKClient(connectString, Timespan.parse(connectTimeout), null)
 
     client.start()
     log.debug "Talking to zookeeper on ${connectString}"
@@ -78,9 +79,10 @@ public class ClientMain
 
   static int mainNoExit(Object args)
   {
-    def cli = new CliBuilder(usage: './bin/zk.sh [-h] [-s <zkConnectionString>] command')
+    def cli = new CliBuilder(usage: './bin/zk.sh [-h] [-s <zkConnectionString>] [-t <zkConnectionTimeout>] command')
     cli.h(longOpt: 'help', 'display help')
     cli.s(longOpt: 'zkConnectionString', 'the zookeeper connection string (host:port)', args: 1, required: false)
+    cli.t(longOpt: 'zkConnectionTimeout', 'the zookeeper connection timeout (e.g. 10s)', args: 2, required: false)
 
     // this is splitting the main cmdline args from the command and its args
     boolean isMainArg = true
