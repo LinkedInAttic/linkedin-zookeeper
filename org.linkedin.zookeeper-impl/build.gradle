@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright (c) 2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,8 +23,7 @@ dependencies {
   compile spec.external.slf4j
   compile spec.external.zookeeper
 
-  groovy spec.external.groovy
-  
+  testCompile spec.external.groovyTest
   testCompile spec.external.linkedinUtilsGroovy
   testCompile spec.external.junit
   testRuntime spec.external.slf4jLog4j
