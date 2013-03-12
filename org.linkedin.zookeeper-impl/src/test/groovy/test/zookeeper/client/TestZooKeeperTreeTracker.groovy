@@ -82,7 +82,7 @@ class TestZooKeeperTreeTracker extends GroovyTestCase
   public void testClient()
   {
     ZKClient client
-    client = new ZKClient('localhost:2121', Timespan.parse('1m'), null)
+    client = new ZKClient('127.0.0.1:2121', Timespan.parse('1m'), null)
 
     try
     {
@@ -177,7 +177,7 @@ class TestZooKeeperTreeTracker extends GroovyTestCase
   public void testRaceCondition()
   {
     ZKClient client
-    client = new ZKClient('localhost:2121', Timespan.parse('1m'), null)
+    client = new ZKClient('127.0.0.1:2121', Timespan.parse('1m'), null)
 
     try
     {

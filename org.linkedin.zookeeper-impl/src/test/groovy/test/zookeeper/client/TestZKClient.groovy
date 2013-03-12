@@ -84,14 +84,14 @@ class TestZKClient extends GroovyTestCase
   void testClient()
   {
     ZKClient client
-    client = new ZKClient('localhost:2121', Timespan.parse('1m'), null)
+    client = new ZKClient('127.0.0.1:2121', Timespan.parse('1m'), null)
 
     try
     {
       client.start()
       client.waitForStart(Timespan.parse('10s'))
 
-      assertEquals('localhost:2121', client.getConnectString())
+      assertEquals('127.0.0.1:2121', client.getConnectString())
 
       // registers url factory
       def factory = new SingletonURLStreamHandlerFactory()
@@ -154,7 +154,7 @@ class TestZKClient extends GroovyTestCase
 
       // error cases
       assertEquals('host/port not supported yet',
-                   shouldFail(MalformedURLException) { new URL('zookeeper://localhost:2121/a') })
+                   shouldFail(MalformedURLException) { new URL('zookeeper://127.0.0.1:2121/a') })
       assertEquals('no query string is allowed',
                    shouldFail(MalformedURLException) { new URL('zookeeper:/a?p1=v1') })
     }
@@ -175,7 +175,7 @@ class TestZKClient extends GroovyTestCase
       throw new InternalException('TestZKClient', 'failing creation')
     }
 
-    _testableZooKeeper = new ZooKeeper('localhost:2121', (int) Timespan.parse('1m').durationInMilliseconds, watcher)
+    _testableZooKeeper = new ZooKeeper('127.0.0.1:2121', (int) Timespan.parse('1m').durationInMilliseconds, watcher)
     new ZooKeeperImpl(_testableZooKeeper)
   }
 
@@ -210,7 +210,7 @@ class TestZKClient extends GroovyTestCase
                    })
 
       client.start()
-      client.waitForStart(Timespan.parse('5s'))
+      client.waitForStart(Timespan.parse('10s'))
 
       th.waitForBlock('onConnected')
       th.unblock('onConnected')
@@ -262,7 +262,7 @@ class TestZKClient extends GroovyTestCase
       zkStart()
 
       // we wait for the client to 'reconnect'
-      client.waitForStart(Timespan.parse('5s'))
+      client.waitForStart(Timespan.parse('10s'))
 
       th.waitForBlock('onConnected')
       th.unblock('onConnected')
@@ -283,7 +283,7 @@ class TestZKClient extends GroovyTestCase
       th.unblock('onConnected')
 
       // we wait for start again
-      client.waitForStart(Timespan.parse('5s'))
+      client.waitForStart(Timespan.parse('10s'))
 
       assertEquals('testa', client.getStringData('/a'))
       // when reconnecting from an expiration, ephemeral nodes are lost
@@ -314,7 +314,7 @@ class TestZKClient extends GroovyTestCase
       assertTrue(_failedCount > 4)
 
       // we wait for start again
-      client.waitForStart(Timespan.parse('5s'))
+      client.waitForStart(Timespan.parse('10s'))
 
       assertEquals('testa', client.getStringData('/a'))
       // when reconnecting from an expiration, ephemeral nodes are lost
@@ -338,7 +338,7 @@ class TestZKClient extends GroovyTestCase
   public void testListener()
   {
     ZKClient client
-    client = new ZKClient('localhost:2121', Timespan.parse('1m'), null)
+    client = new ZKClient('127.0.0.1:2121', Timespan.parse('1m'), null)
     client.reconnectTimeout = Timespan.parse('500')
 
     ThreadControl th = new ThreadControl()
@@ -346,7 +346,7 @@ class TestZKClient extends GroovyTestCase
     try
     {
       client.start()
-      client.waitForStart(Timespan.parse('5s'))
+      client.waitForStart(Timespan.parse('10s'))
 
       client.registerListener([
           onConnected: {

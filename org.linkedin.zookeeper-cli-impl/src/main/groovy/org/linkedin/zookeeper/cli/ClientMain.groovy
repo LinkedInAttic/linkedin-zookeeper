@@ -60,13 +60,13 @@ public class ClientMain
 
   def start()
   {
-    def connectString = config.zkConnectionString ?: "localhost:2181"
+    def connectString = config.zkConnectionString ?: "127.0.0.1:2181"
 
     client = new ZKClient(connectString, Timespan.parse('100'), null)
 
     client.start()
     log.debug "Talking to zookeeper on ${connectString}"
-    client.waitForStart(Timespan.parse('5s'))
+    client.waitForStart(Timespan.parse('10s'))
 
     returnCode = command.execute(client, commandArgs)
   }
