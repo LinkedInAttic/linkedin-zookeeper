@@ -25,11 +25,10 @@ Compilation
 In order to compile the code you need
 
 * java 1.6
-* [gradle 0.9](http://www.gradle.org/)
 
 At the top simply run
 
-    gradle test
+    ./gradlew test
 
 which should compile and run all the tests.
 
@@ -37,7 +36,7 @@ IDE Support
 ===========
 You can issue the command (at the top)
 
-    gradle idea
+    ./gradlew cleanIdea idea
 
 which will use the gradle IDEA plugin to create the right set of modules in order to open the
 project in IntelliJ IDEA.
@@ -55,8 +54,6 @@ Contains a set of utility classes and wrappers to make it easier to use ZooKeepe
 of a tree or entire subtree with easy to use listeners (`NodeEventsListener` and `ErrorListener`): you get notified when nodes are added, updated or deleted (you never deal with ZooKeeper watchers, nor have to set them over and over!). You can see a good example of how to use this class in the glu project [org.linkedin.glu.agent.tracker.AgentsTrackerImpl](https://github.com/linkedin/glu/blob/master/agent/org.linkedin.glu.agent-tracker/src/main/groovy/org/linkedin/glu/agent/tracker/AgentsTrackerImpl.groovy)
   * `StandaloneZooKeeperServer`: a simple class to start a standalone ZooKeeper server (simple to use
 in testing)
-
-Javadoc: [org.linkedin.zookeeper-impl](http://www.kiwidoc.com/java/l/p/org.linkedin/org.linkedin.zookeeper-impl)
 
 * `org.linkedin.zookeeper-cli-impl`:
 A command line (similar to the one bundled with ZooKeeper) with the idea of having a syntax very close to a 'regular' shell:
@@ -78,7 +75,7 @@ Simply create a packaged server which is easy to install and start. Useful in de
 To install the zookeeper server:
 
     cd org.linkedin.zookeeper-server
-    gradle package-install
+    ../gradlew package-install
 
 then go to the install directory and run 
 
@@ -87,7 +84,7 @@ then go to the install directory and run
 To install the zookeeper cli:
 
     cd org.linkedin.zookeeper-cli
-    gradle package-install
+    ../gradlew package-install
 
 then go to the install directory and run (to see help)
 

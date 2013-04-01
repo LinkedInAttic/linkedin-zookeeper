@@ -1,3 +1,13 @@
+1.5.0 (2013/04/01)
+------------------
+* Fixed [#13](https://github.com/linkedin/linkedin-zookeeper/issues/13) _zk.sh get does not work_
+* Implemented [#12](https://github.com/linkedin/linkedin-zookeeper/issues/12) _Upgrade to latest versions_
+* Fixed [#10](https://github.com/linkedin/linkedin-zookeeper/issues/10) _Make zk.sh use $JAVA\_HOME_
+
+This release uses the latest version of ZooKeeper (3.4.5). Thanks to Patrick Hunt for the pull request. The build now uses gradle 1.4.0 and can be invoked using the wrapper (``gradlew``) at the root.
+
+Note that there is an [issue with ZooKeeper](https://issues.apache.org/jira/browse/ZOOKEEPER-1661) and the workaround for it is to use ``127.0.0.1`` instead of ``localhost``.
+
 1.4.1 (2012/03/31)
 ------------------
 * use of [linkedin-utils 1.8.0](https://github.com/linkedin/linkedin-utils/tree/v1.8.0)
@@ -5,7 +15,7 @@
 1.4.0 (2011/09/23)
 ------------------
 * use of [linkedin-utils 1.7.1](https://github.com/linkedin/linkedin-utils/tree/v1.7.1)
-* Implemented [#1](https://github.com/linkedin/linkedin-zookeeper/issues/1) *Expose a getConnectString in the IZKClient interface and IZooKeeperFactory* (thanks Hiram)
+* Implemented [#1](https://github.com/linkedin/linkedin-zookeeper/issues/1) _Expose a getConnectString in the IZKClient interface and IZooKeeperFactory_ (thanks Hiram)
 
 1.3.0 (2011/04/30)
 ------------------

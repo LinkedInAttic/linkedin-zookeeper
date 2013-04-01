@@ -18,21 +18,21 @@
 spec = [
   name: 'linkedin-zookeeper',
   group: 'org.linkedin',
-  version: '1.5.glu47.0',
+  version: '1.5.0',
 
   versions: [
     jdk: '1.6',
     groovy: '2.0.7',
-    linkedinUtils: '1.8.glu47.0',
-    slf4j: '1.6.2' // to be compatible with grails 2.0.7
+    linkedinUtils: '1.9.0',
+    slf4j: '1.6.2' // to be compatible with grails 2.2.1
   ],
 
   // information about the build framework itself
   build: [
     type: "gradle",
     commands: [
-      "snapshot": "gradlew release",
-      "release": "gradlew -Prelease=true release"
+      "snapshot": "./gradlew xxx",
+      "release": "./gradlew -Prelease=true xxx"
     ]
   ]
 ]
@@ -44,7 +44,7 @@ spec.scmUrl = "git@github.com:linkedin/${spec.name}.git"
  */
 spec.external = [
   commonsCli: 'commons-cli:commons-cli:1.2',
-  groovy: "org.codehaus.groovy:groovy:${spec.versions.groovy}",
+  groovy: "org.codehaus.groovy:groovy-all:${spec.versions.groovy}",
   groovyTest: "org.codehaus.groovy:groovy-test:${spec.versions.groovy}",
   junit: 'junit:junit:4.10',
   linkedinUtilsCore: "org.linkedin:org.linkedin.util-core:${spec.versions.linkedinUtils}",
