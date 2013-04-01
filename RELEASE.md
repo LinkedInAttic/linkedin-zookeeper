@@ -2,6 +2,7 @@
 ------------------
 * Fixed [#13](https://github.com/linkedin/linkedin-zookeeper/issues/13) _zk.sh get does not work_
 * Implemented [#12](https://github.com/linkedin/linkedin-zookeeper/issues/12) _Upgrade to latest versions_
+* Fixed [#11](https://github.com/linkedin/linkedin-zookeeper/issues/11) _set connect timeout to a more reasonable value than 100ms_
 * Fixed [#10](https://github.com/linkedin/linkedin-zookeeper/issues/10) _Make zk.sh use $JAVA\_HOME_
 
 This release uses the latest version of ZooKeeper (3.4.5). Thanks to Patrick Hunt for the pull request. The build now uses gradle 1.4.0 and can be invoked using the wrapper (``gradlew``) at the root.
