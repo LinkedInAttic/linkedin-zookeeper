@@ -82,7 +82,7 @@ public class ClientMain
     def cli = new CliBuilder(usage: './bin/zk.sh [-h] [-s <zkConnectionString>] [-t <zkConnectionTimeout>] command')
     cli.h(longOpt: 'help', 'display help')
     cli.s(longOpt: 'zkConnectionString', 'the zookeeper connection string (host:port)', args: 1, required: false)
-    cli.t(longOpt: 'zkConnectionTimeout', 'the zookeeper connection timeout (e.g. 10s)', args: 2, required: false)
+    cli.t(longOpt: 'zkConnectionTimeout', 'the zookeeper connection timeout (e.g. 10s)', args: 1, required: false)
 
     // this is splitting the main cmdline args from the command and its args
     boolean isMainArg = true
