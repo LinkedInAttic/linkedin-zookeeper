@@ -46,7 +46,7 @@ public class GetCommand extends AbstractCommand
       else
       {
         println "${path}:"
-        def res = client.getByteDataAndStat(path)
+        def res = client.getZKByteData(path)
         byte[] data = res.data
         def stat = res.stat
         println "cZxid = " + stat.czxid
