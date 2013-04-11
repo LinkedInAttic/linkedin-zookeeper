@@ -1,6 +1,6 @@
 Introduction
 ============
-The project represents a set of utility classes and wrappers around [ZooKeeper](http://hadoop.apache.org/zookeeper).
+The project represents a set of utility classes and wrappers around [ZooKeeper](http://zookeeper.apache.org/).
 
 Download
 ========
