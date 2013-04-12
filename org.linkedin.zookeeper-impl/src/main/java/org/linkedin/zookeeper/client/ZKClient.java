@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright 2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +17,7 @@
 
 package org.linkedin.zookeeper.client;
 
+import org.linkedin.util.lang.LangUtils;
 import org.slf4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -28,10 +30,11 @@ import org.linkedin.util.exceptions.InternalException;
 import org.linkedin.util.lifecycle.Destroyable;
 import org.linkedin.util.lifecycle.Startable;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -39,7 +42,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author ypujante@linkedin.com
  */
-public class ZKClient extends AbstractZKClient implements Startable, Destroyable, Watcher
+public class ZKClient extends AbstractZKClient implements Startable, Destroyable
 {
   public static final String MODULE = ZKClient.class.getName();
   public static final Logger log = org.slf4j.LoggerFactory.getLogger(MODULE);
@@ -53,10 +56,13 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
   }
 
   private IZooKeeper _zk;
+  private Object _uniqueID;
 
   private volatile Clock _clock = SystemClock.instance();
   private volatile Timespan _reconnectTimeout = Timespan.parse("20s");
-  private volatile Set<LifecycleListener> _listeners = null;
+
+  // the content of the set is never changed (in other words it is an immutable set!)
+  private Set<LifecycleListener> _listeners = null;
 
   private final Object _lock = new Object();
 
@@ -67,16 +73,71 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
 
   private final IZooKeeperFactory _factory;
 
-  private class StateChangeDispatcher extends Thread
+  /**
+   * The purpose of this class is to ignore events if they are coming from a ZooKeeper instance
+   * that is not being used anymore in order to not step on each others feet! It is unclear
+   * whether it can happen after an Expired event and depends on how ZooKeeper is actually
+   * implemented, thus I prefer to be more careful about it.
+   */
+  private class UniqueWatcher implements Watcher
+  {
+    private final Object _uniqueID;
+
+    private UniqueWatcher(Object uniqueID)
+    {
+      _uniqueID = uniqueID;
+    }
+
+    @Override
+    public void process(WatchedEvent event)
+    {
+      synchronized(_lock)
+      {
+        if(LangUtils.isEqual(_uniqueID, ZKClient.this._uniqueID))
+          processWatchedEvent(event);
+        else
+          log.warn("Received an event on a different zk instance... (ignoring)");
+      }
+    }
+  }
+
+  private static class StateChangeDispatcher extends Thread
   {
     public final String MODULE = StateChangeDispatcher.class.getName();
     public final Logger log = org.slf4j.LoggerFactory.getLogger(MODULE);
 
+    private static enum DispatchEventType
+    {
+      CONNECTED,
+      DISCONNECTED
+    }
+
+    private static class DispatchEvent
+    {
+      private final Collection<LifecycleListener> _listeners;
+      private final DispatchEventType _dispatchEventType;
+
+      private DispatchEvent(Collection<LifecycleListener> listeners,
+                            DispatchEventType dispatchEventType)
+      {
+        _listeners = listeners;
+        _dispatchEventType = dispatchEventType;
+      }
+
+      private Collection<LifecycleListener> getListeners()
+      {
+        return _listeners;
+      }
+
+      private DispatchEventType getDispatchEventType()
+      {
+        return _dispatchEventType;
+      }
+    }
+
     private volatile boolean _running = true;
 
-    private final Queue<Boolean> _events = new LinkedList<Boolean>();
-    private final Map<LifecycleListener, Boolean> _eventsHistory =
-      new IdentityHashMap<LifecycleListener, Boolean>();
+    private final Queue<DispatchEvent> _events = new LinkedList<DispatchEvent>();
 
     @Override
     public void run()
@@ -85,7 +146,7 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
 
       while(_running)
       {
-        Boolean isConnectedEvent = null;
+        DispatchEvent dispatchEvent = null;
 
         synchronized(_events)
         {
@@ -102,48 +163,39 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
             }
           }
 
-          if(!_events.isEmpty())
-          {
-            isConnectedEvent = _events.remove();
-          }
+          if(_running)
+            dispatchEvent = _events.poll();
+
         } // end of synchronized
 
-        // we don't want to call the listener in the synchronized section!
-        if(_running && isConnectedEvent != null)
+        // we don't want to call the listener(s) in the synchronized section!
+        if(dispatchEvent != null)
         {
-          Set<LifecycleListener> listeners = _listeners;
-          if(listeners != null)
+          if(dispatchEvent.getListeners() != null)
           {
-            for(LifecycleListener listener : listeners)
+            for(LifecycleListener listener : dispatchEvent.getListeners())
             {
               try
               {
-                Boolean previousEvent = _eventsHistory.get(listener);
-
-                // we propagate the event only if it was not already sent
-                if(previousEvent == null || previousEvent != isConnectedEvent)
+                switch(dispatchEvent.getDispatchEventType())
                 {
-                  if(isConnectedEvent)
+                  case CONNECTED:
                     listener.onConnected();
-                  else
+                    break;
+
+                  case DISCONNECTED:
                     listener.onDisconnected();
+                    break;
+
+                  default:
+                    throw new RuntimeException("not reached");
                 }
               }
               catch(Throwable e)
               {
-                log.warn("Exception while excecuting listener (ignored)", e);
+                log.warn("Exception while executing listener [" + listener + "] (ignored)", e);
               }
             }
-            // we save which event each listener has seen last
-            _eventsHistory.clear();
-            for(LifecycleListener listener : listeners)
-            {
-              _eventsHistory.put(listener, isConnectedEvent);
-            }
-          }
-          else
-          {
-            _eventsHistory.clear();
           }
         }
       }
@@ -160,7 +212,9 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
       }
     }
 
-    public void addEvent(ZKClient.State oldState, ZKClient.State newState)
+    public void addEvent(Collection<LifecycleListener> listeners,
+                         ZKClient.State oldState,
+                         ZKClient.State newState)
     {
       synchronized(_events)
       {
@@ -171,14 +225,14 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
         {
           if(newState == ZKClient.State.CONNECTED)
           {
-            _events.add(true);
+            _events.add(new DispatchEvent(listeners, DispatchEventType.CONNECTED));
             _events.notifyAll();
           }
           else
           {
             if(oldState == ZKClient.State.CONNECTED)
             {
-              _events.add(false);
+              _events.add(new DispatchEvent(listeners, DispatchEventType.DISCONNECTED));
               _events.notifyAll();
             }
           }
@@ -193,9 +247,9 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
     public void run()
     {
       log.info("Entering recovery mode");
-      try
+      synchronized(_lock)
       {
-        synchronized(_lock)
+        try
         {
           int count = 0;
           while(_state == ZKClient.State.NONE)
@@ -220,11 +274,11 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
             }
           }
         }
-      }
-      finally
-      {
-        _expiredSessionRecovery = null;
-        log.info("Exiting recovery mode.");
+        finally
+        {
+          _expiredSessionRecovery = null;
+          log.info("Exiting recovery mode.");
+        }
       }
     }
   }
@@ -311,7 +365,7 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
         if(_listeners != null)
           listeners.addAll(_listeners);
         listeners.add(listener);
-        _listeners = listeners;
+        _listeners = Collections.unmodifiableSet(listeners);
 
         if(_stateChangeDispatcher == null)
         {
@@ -322,7 +376,11 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
 
         if(_state == State.CONNECTED)
         {
-          _stateChangeDispatcher.addEvent(null, State.CONNECTED);
+          // since the listener is new and the client is already connected, we need to send
+          // the connected event to this listener!
+          _stateChangeDispatcher.addEvent(Arrays.asList(listener),
+                                          null,
+                                          State.CONNECTED);
         }
       }
     }
@@ -355,7 +413,10 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
           }
         }
 
-        _listeners = listeners;
+        if(listeners == null)
+          _listeners = null;
+        else
+          _listeners = Collections.unmodifiableSet(listeners);
       }
 
     }
@@ -379,28 +440,36 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
       if(_state != State.NONE)
         throw new IllegalStateException("already started");
 
+      if(log.isDebugEnabled())
+        log.debug("Starting ZKClient");
+
       changeState(State.CONNECTING);
 
       try
       {
-        _zk = createZooKeeper();
+        createZooKeeper();
       }
       catch(InternalException e)
       {
+        if(log.isDebugEnabled())
+          log.debug("Failed to start ZKClient", e);
         changeState(State.NONE);
         throw e;
       }
       catch(Throwable e)
       {
+        if(log.isDebugEnabled())
+          log.debug("Failed to start ZKClient", e);
         changeState(State.NONE);
         throw new InternalException(MODULE, e);
       }
     }
   }
 
-  private IZooKeeper createZooKeeper()
+  private void createZooKeeper()
   {
-    return _factory.createZooKeeper(this);
+    _uniqueID = new Object();
+    _zk = _factory.createZooKeeper(new UniqueWatcher(_uniqueID));
   }
 
   private void changeState(State newState)
@@ -410,7 +479,7 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
       if(_state != newState)
       {
         if(_stateChangeDispatcher != null)
-          _stateChangeDispatcher.addEvent(_state, newState);
+          _stateChangeDispatcher.addEvent(_listeners, _state, newState);
         _state = newState;
         _lock.notifyAll();
       }
@@ -476,11 +545,16 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
       {
         try
         {
+          if(log.isDebugEnabled())
+            log.debug("destroying ZKClient");
+
           changeState(State.NONE);
           _zk.close();
           _zk = null;
+          if(_expiredSessionRecovery != null)
+            _expiredSessionRecovery.interrupt();
         }
-        catch(Exception e)
+        catch(Throwable e)
         {
           if(log.isDebugEnabled())
             log.debug("ignored exception", e);
@@ -489,8 +563,7 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
     }
   }
 
-  @Override
-  public void process(WatchedEvent event)
+  private void processWatchedEvent(WatchedEvent event)
   {
     synchronized(_lock)
     {
@@ -516,20 +589,12 @@ public class ZKClient extends AbstractZKClient implements Startable, Destroyable
             // when expired, the zookeeper object is invalid and we need to recreate a new one
             _zk = null;
             changeState(State.NONE);
-            try
+            log.warn("Expiration detected: trying to restart...");
+            if(_expiredSessionRecovery == null)
             {
-              log.warn("Expiration detected: trying to restart...");
-              start();
-            }
-            catch(Throwable e)
-            {
-              log.warn("Error while restarting:", e);
-              if(_expiredSessionRecovery == null)
-              {
-                _expiredSessionRecovery = new ExpiredSessionRecovery();
-                _expiredSessionRecovery.setDaemon(true);
-                _expiredSessionRecovery.start();
-              }
+              _expiredSessionRecovery = new ExpiredSessionRecovery();
+              _expiredSessionRecovery.setDaemon(true);
+              _expiredSessionRecovery.start();
             }
             break;
           

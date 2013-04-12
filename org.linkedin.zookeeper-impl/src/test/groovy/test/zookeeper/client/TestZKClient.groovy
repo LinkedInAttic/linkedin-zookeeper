@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright 2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,12 +19,12 @@ package test.zookeeper.client
 
 import org.apache.zookeeper.CreateMode
 import org.apache.zookeeper.KeeperException
-import org.apache.zookeeper.WatchedEvent
 import org.apache.zookeeper.Watcher
-import org.apache.zookeeper.Watcher.Event.KeeperState
 import org.apache.zookeeper.ZooDefs.Ids
 import org.apache.zookeeper.ZooKeeper
+import org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils
 import org.linkedin.groovy.util.net.SingletonURLStreamHandlerFactory
+import org.linkedin.util.clock.SystemClock
 import org.linkedin.util.clock.Timespan
 import org.linkedin.util.concurrent.ThreadControl
 import org.linkedin.util.exceptions.InternalException
@@ -35,6 +36,9 @@ import org.linkedin.zookeeper.client.ZooKeeperImpl
 import org.linkedin.zookeeper.client.ZooKeeperURLHandler
 import org.linkedin.zookeeper.server.StandaloneZooKeeperServer
 import org.linkedin.groovy.util.io.fs.FileSystemImpl
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import java.util.concurrent.TimeoutException
 
 /**
@@ -44,6 +48,9 @@ import java.util.concurrent.TimeoutException
  */
 class TestZKClient extends GroovyTestCase
 {
+  public static final String MODULE = TestZKClient.class.getName();
+  public static final Logger log = LoggerFactory.getLogger(MODULE);
+
   FileSystemImpl fs = FileSystemImpl.createTempFileSystem()
   StandaloneZooKeeperServer zookeeperServer
 
@@ -172,11 +179,33 @@ class TestZKClient extends GroovyTestCase
     if(_failCreation)
     {
       _failedCount++
-      throw new InternalException('TestZKClient', 'failing creation')
+      throw new InternalException('TestZKClient', "failing creation ${_failedCount}")
     }
 
-    _testableZooKeeper = new ZooKeeper('127.0.0.1:2121', (int) Timespan.parse('1m').durationInMilliseconds, watcher)
+    _testableZooKeeper = new ZooKeeper('127.0.0.1:2121',
+                                       (int) Timespan.parse('1m').durationInMilliseconds,
+                                       watcher)
+
     new ZooKeeperImpl(_testableZooKeeper)
+  }
+
+  /**
+   * see FAQ about forcing expire session http://wiki.apache.org/hadoop/ZooKeeper/FAQ#A4
+   */
+  private void expireZooKeeperSession()
+  {
+    def factory = { Watcher watcher ->
+      new ZooKeeperImpl(new ZooKeeper('127.0.0.1:2121',
+                                      _testableZooKeeper.sessionTimeout,
+                                      watcher as Watcher,
+                                      _testableZooKeeper.sessionId, // session id
+                                      _testableZooKeeper.sessionPasswd)) // password
+    }
+
+    def zk = new ZKClient(factory as IZooKeeperFactory)
+    zk.start()
+    zk.waitForStart(Timespan.parse('10s'))
+    zk.close()
   }
 
   /**
@@ -188,7 +217,7 @@ class TestZKClient extends GroovyTestCase
     client = new ZKClient(testableZooKeeperFactory as IZooKeeperFactory)
     client.reconnectTimeout = Timespan.parse('500')
 
-    ThreadControl th = new ThreadControl()
+    ThreadControl th = new ThreadControl(Timespan.parse('10s'))
 
     client.registerListener([
         onConnected: {
@@ -236,7 +265,7 @@ class TestZKClient extends GroovyTestCase
         client.getStringData('/a')
         fail("should fail with an exception")
       }
-      catch (KeeperException.ConnectionLossException e)
+      catch (KeeperException.ConnectionLossException ignored)
       {
         // ok
       }
@@ -255,7 +284,7 @@ class TestZKClient extends GroovyTestCase
                    client.getStringData('/a')
                    })
 
-      // we wait a little... to make sure that we excercise the recovery loop
+      // we wait a little... to make sure that we exercise the recovery loop
       Thread.sleep(600)
 
       // we restart the server
@@ -272,10 +301,9 @@ class TestZKClient extends GroovyTestCase
       assertEquals('testb', client.getStringData('/b'))
 
       // we force an expired event
-      _testableZooKeeper.close()
-      client.process(new WatchedEvent(Watcher.Event.EventType.None, KeeperState.Expired, null))
+      expireZooKeeperSession()
 
-      // this will trigger a disconnet and connect event
+      // this will trigger a disconnect and connect event
       th.waitForBlock('onDisconnected')
       th.unblock('onDisconnected')
 
@@ -293,9 +321,9 @@ class TestZKClient extends GroovyTestCase
 
       // we generate a failure
       _failCreation = true
+      _failedCount = 0
 
-      _testableZooKeeper.close()
-      client.process(new WatchedEvent(Watcher.Event.EventType.None, KeeperState.Expired, null))
+      expireZooKeeperSession()
 
       th.waitForBlock('onDisconnected')
       th.unblock('onDisconnected')
@@ -306,12 +334,16 @@ class TestZKClient extends GroovyTestCase
         client.waitForStart(Timespan.parse('2s'))
       }
 
+      GroovyConcurrentUtils.waitForCondition(SystemClock.INSTANCE, Timespan.parse('10s'), 250) {
+        _failedCount >= 4
+      }
+
       _failCreation = false
 
       th.waitForBlock('onConnected')
       th.unblock('onConnected')
 
-      assertTrue(_failedCount > 4)
+      assertTrue(_failedCount >= 4)
 
       // we wait for start again
       client.waitForStart(Timespan.parse('10s'))
@@ -324,6 +356,7 @@ class TestZKClient extends GroovyTestCase
     }
     finally
     {
+      log.info "destroying client"
       client.destroy()
     }
 

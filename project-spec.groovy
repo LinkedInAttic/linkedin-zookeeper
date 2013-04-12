@@ -18,7 +18,7 @@
 spec = [
   name: 'linkedin-zookeeper',
   group: 'org.linkedin',
-  version: '1.5.0',
+  version: '1.5.1',
 
   versions: [
     jdk: '1.6',

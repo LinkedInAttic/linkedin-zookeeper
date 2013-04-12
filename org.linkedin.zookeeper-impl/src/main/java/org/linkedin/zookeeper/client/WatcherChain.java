@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright 2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +19,8 @@ package org.linkedin.zookeeper.client;
 
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Arrays;
@@ -28,6 +31,9 @@ import java.util.ArrayList;
  */
 public class WatcherChain implements Watcher
 {
+  public static final String MODULE = WatcherChain.class.getName();
+  public static final Logger log = LoggerFactory.getLogger(MODULE);
+
   private final Collection<Watcher> _watchers;
 
   /**
@@ -51,7 +57,15 @@ public class WatcherChain implements Watcher
   {
     for(Watcher watcher : _watchers)
     {
-      watcher.process(event);
+      try
+      {
+        watcher.process(event);
+      }
+      catch(Throwable th)
+      {
+        log.warn("Unexpected exception while processing event [" + event
+                 + "] for watcher [" + watcher + "] (ignored)", th);
+      }
     }
   }
 
