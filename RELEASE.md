@@ -1,3 +1,7 @@
+1.5.1 (2013/04/16)
+------------------
+* Implemented [#14](https://github.com/linkedin/linkedin-zookeeper/issues/14) _Race condition? glu-210_
+
 1.5.0 (2013/04/01)
 ------------------
 * Fixed [#13](https://github.com/linkedin/linkedin-zookeeper/issues/13) _zk.sh get does not work_
