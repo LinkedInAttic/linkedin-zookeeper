@@ -1,3 +1,11 @@
+WARNING WARNING WARNING WARNING
+===============================
+
+This project is no longer maintained in this repository. To find the latest version of this project, check the [pongasoft/utils-zookeeper](https://github.com/pongasoft/utils-zookeeper) fork.
+
+WARNING WARNING WARNING WARNING
+===============================
+
 Introduction
 ============
 The project represents a set of utility classes and wrappers around [ZooKeeper](http://zookeeper.apache.org/).
